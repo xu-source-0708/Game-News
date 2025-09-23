@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameNews_FP UX</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="icon"></div>
+            <h1>FUNPLUS | 游戏行业新闻看板</h1>
+        </div>
+        <div class="custom-rss">
+            <button id="refreshBtn" class="refresh-button">
+                <span class="refresh-text">刷新</span>
+                <span class="refresh-icon"></span>
+            </button>
+            <button id="settingsBtn" class="settings-button">
+                RSS管理
+            </button>
+        </div>
+    </header>
+    
+    <main>
+        <div class="rss-grid">
+            <!-- RSS内容将通过JavaScript动态添加 -->
+        </div>
+    </main>
+    
+    <footer>
+        <p>© XU in UX Team 2025 | 数据来源于RSS实时刷新</p>
+    </footer>
+    
+    <!-- 设置模态框 -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>RSS管理</h2>
+            
+            <!-- RSS源管理 -->
+            <div class="settings-section">
+                <h3>RSS源管理</h3>
+                <div class="add-rss-form">
+                    <input type="text" id="rssName" placeholder="RSS源名称">
+                    <input type="text" id="rssUrl" placeholder="RSS源URL">
+                    <button id="saveRssBtn">添加</button>
+                </div>
+                <div class="rss-sources">
+                    <h4>所有RSS源</h4>
+                    <div id="allRssList" class="rss-sources-list">
+                        <!-- 所有RSS源将动态显示在这里 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 恢复默认选项 -->
+            <div class="settings-section">
+                <button id="resetDefaultsBtn" class="reset-button">恢复默认设置</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
