@@ -47,20 +47,6 @@ function init() {
         const storedSources = localStorage.getItem(localStorageKey);
         if (storedSources) {
             allRssSources = JSON.parse(storedSources);
-            
-            // 检查并添加缺失的预设RSS源
-            const currentPresetUrls = allRssSources
-                .filter(source => source.isPreset)
-                .map(source => source.url);
-            
-            const missingPresets = presetRssSources.filter(preset => 
-                !currentPresetUrls.includes(preset.url)
-            );
-            
-            if (missingPresets.length > 0) {
-                allRssSources = [...allRssSources, ...missingPresets];
-                localStorage.setItem(localStorageKey, JSON.stringify(allRssSources));
-            }
         } else {
             // 初始化存储，包含所有预设源和自定义源
             allRssSources = [...presetRssSources, ...getSavedRssSources()];
