@@ -32,7 +32,7 @@ const presetRssSources = [
     },
     {
         name: "Pocket Gamer",
-        url: "https://www.pocketgamer.com/news/pga-winners-cosy-games-warcraft-rumble/index.rss",
+        url: "https://www.pocketgamer.com/news/index.rss",
         isPreset: true
     }
 ];
