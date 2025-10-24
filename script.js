@@ -3,36 +3,43 @@ const presetRssSources = [
     {
         name: "3DM游戏新闻",
         url: "https://rsshub-k7m9.zeabur.app/3dmgame/news",
+        website: "https://www.3dmgame.com/news/",
         isPreset: true
     },
     {
         name: "游民星空PC新闻",
         url: "https://rsshub-k7m9.zeabur.app/gamersky/news/pc",
+        website: "https://www.gamersky.com/pcgame/",
         isPreset: true
     },
     {
         name: "Mobile Gamer",
         url: "https://mobilegamer.biz/feed",
+        website: "https://mobilegamer.biz/",
         isPreset: true
     },
     {
         name: "游戏矩阵",
         url: "https://shouyoujz.com/feed",
+        website: "https://shouyoujz.com/",
         isPreset: true
     },
     {
         name: "GamesIndustry.biz",
         url: "https://www.gamesindustry.biz/feed",
+        website: "https://www.gamesindustry.biz/",
         isPreset: true
     },
     {
         name: "GameDeveloper",
         url: "https://www.gamedeveloper.com/rss.xml",
+        website: "https://www.gamedeveloper.com/",
         isPreset: true
     },
     {
         name: "Pocket Gamer",
         url: "https://www.pocketgamer.com/news/index.rss",
+        website: "https://www.pocketgamer.com/",
         isPreset: true
     }
 ];
@@ -134,10 +141,19 @@ function renderAllRssSources(sources) {
         // 创建RSS组的HTML内容，为所有RSS源添加删除按钮
         const deleteButton = '<button class="delete-rss" title="删除RSS源">×</button>';
         
-        // 创建带滑块的内容区域
+        // 创建带滑块的内容区域，添加超链接
+        const headerContent = source.website ? 
+            `<a href="${source.website}" target="_blank" rel="noopener noreferrer" class="rss-title-link">${source.name}</a>` : 
+            source.name;
+        
+        // 调试信息
+        console.log('Rendering RSS source:', source.name, 'with website:', source.website);
+        
         rssGroup.innerHTML = `
             <div class="rss-header">
-                ${source.name}
+                <div class="rss-title-container">
+                    ${headerContent}
+                </div>
                 ${deleteButton}
             </div>
             <div class="rss-slider-container">
@@ -156,8 +172,8 @@ function renderAllRssSources(sources) {
         
         // 异步加载RSS数据
         fetchRssData(source.url).then(newsItems => {
-            // 限制最多20个新闻
-            newsItems = newsItems.slice(0, 20);
+            // 限制最多50个新闻
+            newsItems = newsItems.slice(0, 50);
             
             // 渲染新闻列表
             const slider = rssGroup.querySelector('.rss-slider');
@@ -206,6 +222,9 @@ function renderAllRssSources(sources) {
     
     // 设置删除按钮事件
     setupDeleteButtons();
+    
+    // 设置RSS标题链接事件
+    setupRssTitleLinks();
     
     // 设置滑动功能
     setupSliderFunctionality();
@@ -306,12 +325,24 @@ function formatDate(dateString) {
     }
 }
 
+// 设置RSS标题链接事件
+function setupRssTitleLinks() {
+    const rssTitleLinks = document.querySelectorAll('.rss-title-link');
+    rssTitleLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            console.log('RSS标题链接被点击:', link.href);
+            // 不阻止默认行为，让链接正常跳转
+        });
+    });
+}
+
 // 设置删除按钮事件
 function setupDeleteButtons() {
     const deleteButtons = document.querySelectorAll('.delete-rss');
     deleteButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             const rssGroup = button.closest('.rss-group');
             const url = rssGroup.dataset.url;
             
@@ -418,7 +449,8 @@ function updateRssSourcesList() {
                             ${source.name}
                             ${isPreset ? '<span class="preset-tag">预设</span>' : ''}
                         </div>
-                        <div class="rss-source-url">${source.url}</div>
+                        <div class="rss-source-url">RSS: ${source.url}</div>
+                        ${source.website ? `<div class="rss-source-website">网站: <a href="${source.website}" target="_blank" rel="noopener noreferrer">${source.website}</a></div>` : ''}
                     </div>
                     <button class="delete-source-btn" data-url="${source.url}" data-is-preset="${isPreset}">删除</button>
                 </div>
@@ -428,7 +460,9 @@ function updateRssSourcesList() {
         // 添加删除按钮事件
         const deleteButtons = allRssList.querySelectorAll('.delete-source-btn');
         deleteButtons.forEach(button => {
-            button.addEventListener('click', () => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const url = button.dataset.url;
                 const isPreset = button.dataset.isPreset === 'true';
                 
@@ -496,15 +530,17 @@ function setupModalEvents() {
         saveBtn.addEventListener('click', () => {
             const name = document.getElementById('rssName').value.trim();
             const url = document.getElementById('rssUrl').value.trim();
+            const website = document.getElementById('rssWebsite').value.trim();
             
-            if (!name || !url) {
-                alert('请输入RSS源名称和URL');
+            if (!name || !url || !website) {
+                alert('请输入RSS源名称、URL和新闻网址');
                 return;
             }
             
             // 验证URL格式
             try {
                 new URL(url);
+                new URL(website);
             } catch (e) {
                 alert('请输入有效的URL格式');
                 return;
@@ -532,7 +568,7 @@ function setupModalEvents() {
             
             // 添加到自定义源存储
             const savedSources = getSavedRssSources();
-            const newSource = { name, url, isPreset: false };
+            const newSource = { name, url, website, isPreset: false };
             savedSources.push(newSource);
             saveRssSources(savedSources);
             
@@ -553,6 +589,7 @@ function setupModalEvents() {
             // 清空输入
             document.getElementById('rssName').value = '';
             document.getElementById('rssUrl').value = '';
+            document.getElementById('rssWebsite').value = '';
             
             // 显示成功提示
             alert('RSS源添加成功！');
@@ -613,24 +650,65 @@ function setupSliderFunctionality() {
         // 记录初始触摸位置和滚动位置
         let startY = 0;
         let startScrollY = 0;
+        let isScrolling = false;
         
         // 触摸开始事件
         slider.addEventListener('touchstart', (e) => {
             startY = e.touches[0].clientY;
             startScrollY = slider.scrollTop;
+            isScrolling = true;
         });
         
-        // 触摸移动事件
+        // 触摸移动事件 - 增加滑动速度
         slider.addEventListener('touchmove', (e) => {
+            if (!isScrolling) return;
+            
             const currentY = e.touches[0].clientY;
             const diff = startY - currentY;
-            slider.scrollTop = startScrollY + diff;
+            // 增加滑动速度倍数
+            slider.scrollTop = startScrollY + (diff * 1.5);
         });
         
-        // 鼠标滚轮事件（桌面端支持）
+        // 触摸结束事件
+        slider.addEventListener('touchend', () => {
+            isScrolling = false;
+        });
+        
+        // 鼠标滚轮事件（桌面端支持）- 增加滚动速度
         slider.addEventListener('wheel', (e) => {
             e.preventDefault();
-            slider.scrollTop += e.deltaY;
+            // 增加滚动速度
+            slider.scrollTop += e.deltaY * 1.5;
+        });
+        
+        // 添加惯性滚动支持
+        let velocity = 0;
+        let lastTime = 0;
+        let lastScrollTop = 0;
+        
+        slider.addEventListener('touchmove', (e) => {
+            if (!isScrolling) return;
+            
+            const currentTime = Date.now();
+            const currentScrollTop = slider.scrollTop;
+            
+            if (lastTime > 0) {
+                const deltaTime = currentTime - lastTime;
+                const deltaScroll = currentScrollTop - lastScrollTop;
+                velocity = deltaScroll / deltaTime;
+            }
+            
+            lastTime = currentTime;
+            lastScrollTop = currentScrollTop;
+        });
+        
+        // 触摸结束后应用惯性
+        slider.addEventListener('touchend', () => {
+            if (Math.abs(velocity) > 0.1) {
+                const inertia = velocity * 100; // 惯性系数
+                slider.scrollTop += inertia;
+            }
+            isScrolling = false;
         });
     });
 }

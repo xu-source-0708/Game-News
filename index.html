@@ -3,20 +3,473 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameNews_FP UX</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+    <title>游戏新闻看板 - 最终版</title>
+    <style>
+        /* 全局样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: #ff6b00;
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo .icon {
+            font-size: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        /* 按钮容器样式 */
+        .custom-rss {
+            display: flex;
+            align-items: center;
+        }
+
+        /* 设置和刷新按钮样式 */
+        #settingsBtn, #refreshBtn {
+            background-color: white;
+            color: #ff6b00;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+            min-width: 120px;
+            height: 50px;
+            padding: 0.5rem 1.2rem;
+        }
+
+        #refreshBtn {
+            margin-left: 0;
+        }
+
+        #settingsBtn:hover,
+        #refreshBtn:hover {
+            background-color: #ffe0cc;
+        }
+
+        /* 主内容区域 */
+        main {
+            max-width: 1400px;
+            margin: 5rem auto 2rem;
+            padding: 0 1rem;
+        }
+
+        .rss-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* RSS板块样式 */
+        .rss-group {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rss-header {
+            background-color: #ff6b00;
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rss-title-container {
+            flex: 1;
+            margin-right: 1rem;
+        }
+
+        .delete-rss {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            z-index: 10;
+            position: relative;
+        }
+
+        .delete-rss:hover {
+            opacity: 1;
+        }
+
+        .rss-slider-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            padding: 1rem;
+        }
+
+        .rss-slider {
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: auto;
+            scroll-snap-type: y proximity;
+        }
+
+        /* 自定义滚动条样式 */
+        .rss-slider::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .rss-slider::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .rss-slider::-webkit-scrollbar-thumb {
+            background: #ff6b00;
+            border-radius: 3px;
+        }
+
+        .rss-slider::-webkit-scrollbar-thumb:hover {
+            background: #e55c00;
+        }
+
+        .slider-indicator {
+            position: absolute;
+            bottom: 0.5rem;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #999;
+            padding: 0.5rem 0;
+            background: linear-gradient(transparent, white 70%);
+        }
+
+        .news-item {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-item-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .news-title {
+            color: #333;
+            text-decoration: none;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: color 0.3s;
+        }
+
+        .news-time {
+            font-size: 0.75rem;
+            color: #999;
+            text-align: right;
+            margin-top: 0.2rem;
+        }
+
+        .news-item a:hover {
+            color: #ff6b00;
+        }
+
+        /* RSS标题链接样式 */
+        .rss-title-link {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: inline-block;
+            cursor: pointer;
+            z-index: 1;
+            position: relative;
+        }
+
+        .rss-title-link:hover {
+            color: #ffe0cc;
+            text-decoration: underline;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 8px;
+            animation: slideIn 0.3s;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: #ff6b00;
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            color: #ff6b00;
+        }
+
+        .modal h3 {
+            margin: 1.5rem 0 1rem;
+            color: #333;
+        }
+
+        .modal h4 {
+            margin: 1rem 0 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* 设置部分样式 */
+        .settings-section {
+            margin-bottom: 2rem;
+        }
+
+        /* 添加RSS表单样式 */
+        .add-rss-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .add-rss-form input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .add-rss-form button {
+            background-color: #ff6b00;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        /* RSS源列表样式 */
+        .rss-sources-list {
+            margin-top: 15px;
+        }
+
+        .rss-source-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .rss-source-item:hover {
+            background-color: #e9e9e9;
+        }
+
+        .rss-source-item.preset {
+            border-left: 4px solid #4a90e2;
+        }
+
+        .rss-source-info {
+            flex-grow: 1;
+        }
+
+        .rss-source-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .rss-source-url {
+            color: #666;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .rss-source-website {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .rss-source-website a {
+            color: #ff6b00;
+            text-decoration: none;
+        }
+
+        .rss-source-website a:hover {
+            text-decoration: underline;
+        }
+
+        .delete-source-btn {
+            padding: 5px 10px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-source-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .preset-tag {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 2px 6px;
+            background-color: #4a90e2;
+            color: white;
+            border-radius: 3px;
+            font-size: 10px;
+        }
+
+        /* 恢复默认按钮样式 */
+        .reset-button {
+            background-color: #ff6b00;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        /* 页脚样式 */
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .rss-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .rss-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            main {
+                padding: 0 0.5rem;
+            }
+            
+            header {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="logo">
-            <div class="icon"></div>
+            <div class="icon">🎮</div>
             <h1>FUNPLUS | 游戏行业新闻看板</h1>
         </div>
         <div class="custom-rss">
             <button id="refreshBtn" class="refresh-button">
                 <span class="refresh-text">刷新</span>
-                <span class="refresh-icon"></span>
             </button>
             <button id="settingsBtn" class="settings-button">
                 RSS管理
@@ -46,6 +499,7 @@
                 <div class="add-rss-form">
                     <input type="text" id="rssName" placeholder="RSS源名称">
                     <input type="text" id="rssUrl" placeholder="RSS源URL">
+                    <input type="text" id="rssWebsite" placeholder="新闻网址（信息源对应网站）">
                     <button id="saveRssBtn">添加</button>
                 </div>
                 <div class="rss-sources">
@@ -62,5 +516,359 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        // 预设的RSS源
+        const presetRssSources = [
+            {
+                name: "3DM游戏新闻",
+                url: "https://rsshub-k7m9.zeabur.app/3dmgame/news",
+                website: "https://www.3dmgame.com/news/",
+                isPreset: true
+            },
+            {
+                name: "游民星空PC新闻",
+                url: "https://rsshub-k7m9.zeabur.app/gamersky/news/pc",
+                website: "https://www.gamersky.com/pcgame/",
+                isPreset: true
+            },
+            {
+                name: "Mobile Gamer",
+                url: "https://mobilegamer.biz/feed",
+                website: "https://mobilegamer.biz/",
+                isPreset: true
+            },
+            {
+                name: "游戏矩阵",
+                url: "https://shouyoujz.com/feed",
+                website: "https://shouyoujz.com/",
+                isPreset: true
+            },
+            {
+                name: "GamesIndustry.biz",
+                url: "https://www.gamesindustry.biz/feed",
+                website: "https://www.gamesindustry.biz/",
+                isPreset: true
+            },
+            {
+                name: "GameDeveloper",
+                url: "https://www.gamedeveloper.com/rss.xml",
+                website: "https://www.gamedeveloper.com/",
+                isPreset: true
+            },
+            {
+                name: "Pocket Gamer",
+                url: "https://www.pocketgamer.com/news/index.rss",
+                website: "https://www.pocketgamer.com/",
+                isPreset: true
+            }
+        ];
+
+        // 初始化页面
+        function init() {
+            renderAllRssSources(presetRssSources);
+            setupEventListeners();
+        }
+
+        // 渲染所有RSS源
+        function renderAllRssSources(sources) {
+            const grid = document.querySelector('.rss-grid');
+            grid.innerHTML = '';
+            
+            if (sources.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div>📰</div>
+                        <p>暂无RSS源，请点击上方按钮添加</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            sources.forEach(source => {
+                const rssGroup = document.createElement('div');
+                rssGroup.className = `rss-group ${source.isPreset ? 'preset' : ''}`;
+                rssGroup.dataset.url = source.url;
+                
+                // 创建RSS组的HTML内容
+                const deleteButton = '<button class="delete-rss" title="删除RSS源">×</button>';
+                
+                // 创建带超链接的标题
+                const headerContent = source.website ? 
+                    `<a href="${source.website}" target="_blank" rel="noopener noreferrer" class="rss-title-link">${source.name}</a>` : 
+                    source.name;
+                
+                rssGroup.innerHTML = `
+                    <div class="rss-header">
+                        <div class="rss-title-container">
+                            ${headerContent}
+                        </div>
+                        ${deleteButton}
+                    </div>
+                    <div class="rss-slider-container">
+                        <div class="rss-slider">
+                            <div class="loading-item">
+                                <div class="news-item-content">
+                                    <div class="news-title loading-placeholder">加载中...</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slider-indicator">正在加载RSS内容...</div>
+                    </div>
+                `;
+                
+                grid.appendChild(rssGroup);
+                
+                // 异步加载RSS数据
+                fetchRssData(source.url).then(newsItems => {
+                    // 限制最多50个新闻
+                    newsItems = newsItems.slice(0, 50);
+                    
+                    // 渲染新闻列表
+                    const slider = rssGroup.querySelector('.rss-slider');
+                    const indicator = rssGroup.querySelector('.slider-indicator');
+                    
+                    if (newsItems.length > 0) {
+                        slider.innerHTML = newsItems.map(item => `
+                            <div class="news-item">
+                                <div class="news-item-content">
+                                    <a class="news-title" href="${item.link || '#'}" target="_blank" rel="noopener noreferrer">${item.title}</a>
+                                    ${item.time ? `<span class="news-time">${item.time}</span>` : ''}
+                                </div>
+                            </div>
+                        `).join('');
+                        
+                        if (newsItems.length > 5) {
+                            indicator.textContent = '向上滑动查看更多';
+                        } else {
+                            indicator.textContent = '';
+                        }
+                    } else {
+                        slider.innerHTML = `
+                            <div class="empty-item">
+                                <div class="news-item-content">
+                                    <div class="news-title">无法加载RSS内容</div>
+                                </div>
+                            </div>
+                        `;
+                        indicator.textContent = '';
+                    }
+                }).catch(error => {
+                    console.error(`Failed to fetch RSS data for ${source.name}:`, error);
+                    const slider = rssGroup.querySelector('.rss-slider');
+                    const indicator = rssGroup.querySelector('.slider-indicator');
+                    
+                    slider.innerHTML = `
+                        <div class="empty-item">
+                            <div class="news-item-content">
+                                <div class="news-title">加载RSS内容失败</div>
+                            </div>
+                        </div>
+                    `;
+                    indicator.textContent = '';
+                });
+            });
+            
+            // 设置事件监听器
+            setupRssTitleLinks();
+            setupDeleteButtons();
+        }
+
+        // 获取RSS数据的函数
+        async function fetchRssData(url) {
+            try {
+                // 使用RSS2JSON服务来绕过跨域限制
+                const rss2jsonApi = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+                
+                const response = await fetch(rss2jsonApi);
+                const data = await response.json();
+                
+                // 检查响应是否包含items
+                if (data.items && Array.isArray(data.items)) {
+                    return data.items.map(item => ({
+                        title: item.title || '无标题',
+                        time: formatDate(item.pubDate) || '',
+                        link: item.link || ''
+                    }));
+                } else {
+                    throw new Error('Invalid RSS response');
+                }
+            } catch (error) {
+                console.error('Error fetching RSS data:', error);
+                return [];
+            }
+        }
+
+        // 格式化日期函数
+        function formatDate(dateString) {
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) {
+                    return '';
+                }
+                
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                
+                return `${year}-${month}-${day} ${hours}:${minutes}`;
+            } catch (e) {
+                console.error('Error formatting date:', e);
+                return '';
+            }
+        }
+
+        // 设置RSS标题链接事件
+        function setupRssTitleLinks() {
+            const rssTitleLinks = document.querySelectorAll('.rss-title-link');
+            rssTitleLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    console.log('RSS标题链接被点击:', link.href);
+                    // 不阻止默认行为，让链接正常跳转
+                });
+            });
+        }
+
+        // 设置删除按钮事件
+        function setupDeleteButtons() {
+            const deleteButtons = document.querySelectorAll('.delete-rss');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const rssGroup = button.closest('.rss-group');
+                    const sourceName = rssGroup.querySelector('.rss-title-link').textContent;
+                    
+                    if (confirm(`确定要删除 "${sourceName}" 吗？`)) {
+                        rssGroup.remove();
+                        console.log('RSS源已删除:', sourceName);
+                    }
+                });
+            });
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            const settingsBtn = document.getElementById('settingsBtn');
+            const modal = document.getElementById('settingsModal');
+            const closeBtn = document.getElementsByClassName('close')[0];
+            const saveBtn = document.getElementById('saveRssBtn');
+            const resetDefaultsBtn = document.getElementById('resetDefaultsBtn');
+            
+            // 刷新按钮
+            refreshBtn.addEventListener('click', () => {
+                refreshBtn.textContent = '刷新中...';
+                renderAllRssSources(presetRssSources);
+                setTimeout(() => {
+                    refreshBtn.textContent = '刷新';
+                    console.log('RSS源已刷新');
+                }, 1000);
+            });
+            
+            // 设置按钮
+            settingsBtn.addEventListener('click', () => {
+                updateRssSourcesList();
+                modal.style.display = 'block';
+            });
+            
+            // 关闭模态框
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // 保存新的RSS源
+            saveBtn.addEventListener('click', () => {
+                const name = document.getElementById('rssName').value.trim();
+                const url = document.getElementById('rssUrl').value.trim();
+                const website = document.getElementById('rssWebsite').value.trim();
+                
+                if (!name || !url || !website) {
+                    alert('请输入RSS源名称、URL和新闻网址');
+                    return;
+                }
+                
+                // 验证URL格式
+                try {
+                    new URL(url);
+                    new URL(website);
+                } catch (e) {
+                    alert('请输入有效的URL格式');
+                    return;
+                }
+                
+                alert('RSS源添加成功！\n\n注意：这是演示版本，实际添加功能需要完整的后端支持。');
+                
+                // 清空输入
+                document.getElementById('rssName').value = '';
+                document.getElementById('rssUrl').value = '';
+                document.getElementById('rssWebsite').value = '';
+            });
+            
+            // 恢复默认设置
+            resetDefaultsBtn.addEventListener('click', () => {
+                if (confirm('确定要恢复默认设置吗？这将重新加载所有预设RSS源。')) {
+                    renderAllRssSources(presetRssSources);
+                    alert('已恢复默认设置！');
+                }
+            });
+        }
+
+        // 更新RSS源列表
+        function updateRssSourcesList() {
+            const allRssList = document.getElementById('allRssList');
+            
+            if (!allRssList) return;
+            
+            if (presetRssSources.length === 0) {
+                allRssList.innerHTML = '<div class="empty-list">暂无RSS源</div>';
+            } else {
+                allRssList.innerHTML = presetRssSources.map(source => {
+                    const isPreset = source.isPreset || presetRssSources.some(preset => preset.url === source.url);
+                    return `
+                        <div class="rss-source-item ${isPreset ? 'preset' : ''}">
+                            <div class="rss-source-info">
+                                <div class="rss-source-name">
+                                    ${source.name}
+                                    ${isPreset ? '<span class="preset-tag">预设</span>' : ''}
+                                </div>
+                                <div class="rss-source-url">RSS: ${source.url}</div>
+                                ${source.website ? `<div class="rss-source-website">网站: <a href="${source.website}" target="_blank" rel="noopener noreferrer">${source.website}</a></div>` : ''}
+                            </div>
+                            <button class="delete-source-btn" data-url="${source.url}" data-is-preset="${isPreset}">删除</button>
+                        </div>
+                    `;
+                }).join('');
+                
+                // 添加删除按钮事件
+                const deleteButtons = allRssList.querySelectorAll('.delete-source-btn');
+                deleteButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const url = button.dataset.url;
+                        const isPreset = button.dataset.isPreset === 'true';
+                        
+                        if (confirm(`确定要删除这个RSS源吗？`)) {
+                            // 这里只是演示，实际删除需要更新数据源
+                            alert('RSS源已删除！\n\n注意：这是演示版本，实际删除功能需要完整的数据管理支持。');
+                        }
+                    });
+                });
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>

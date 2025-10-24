@@ -152,6 +152,11 @@ main {
     align-items: center;
 }
 
+.rss-title-container {
+    flex: 1;
+    margin-right: 1rem;
+}
+
 .delete-rss {
     background: none;
     border: none;
@@ -177,7 +182,8 @@ main {
     height: 100%;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
+    scroll-snap-type: y proximity;
 }
 
 /* 自定义滚动条样式 */
@@ -499,4 +505,36 @@ footer {
 
 .news-title:hover::after {
     width: 100%;
+}
+
+/* RSS标题链接样式 */
+.rss-title-link {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: inline-block;
+    cursor: pointer;
+    z-index: 1;
+    position: relative;
+}
+
+.rss-title-link:hover {
+    color: #ffe0cc;
+    text-decoration: underline;
+}
+
+/* RSS源网站链接样式 */
+.rss-source-website {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #666;
+}
+
+.rss-source-website a {
+    color: #ff6b00;
+    text-decoration: none;
+}
+
+.rss-source-website a:hover {
+    text-decoration: underline;
 }
