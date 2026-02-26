@@ -17,8 +17,6 @@
 
 ## 预设RSS源
 
-- 3DM游戏新闻
-- 游民星空PC新闻
 - Mobile Gamer
 - 游戏矩阵
 - GamesIndustry.biz
