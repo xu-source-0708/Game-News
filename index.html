@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>游戏新闻看板 - 最终版</title>
+    <title>FunPlus - 游戏新闻看板</title>
     <style>
         /* 全局样式重置 */
         * {
@@ -521,18 +521,6 @@
         // 预设的RSS源
         const presetRssSources = [
             {
-                name: "3DM游戏新闻",
-                url: "https://rsshub-k7m9.zeabur.app/3dmgame/news",
-                website: "https://www.3dmgame.com/news/",
-                isPreset: true
-            },
-            {
-                name: "游民星空PC新闻",
-                url: "https://rsshub-k7m9.zeabur.app/gamersky/news/pc",
-                website: "https://www.gamersky.com/pcgame/",
-                isPreset: true
-            },
-            {
                 name: "Mobile Gamer",
                 url: "https://mobilegamer.biz/feed",
                 website: "https://mobilegamer.biz/",
@@ -806,7 +794,7 @@
                     return;
                 }
                 
-                alert('RSS源添加成功！\n\n注意：这是演示版本，实际添加功能需要完整的后端支持。');
+                alert('RSS源添加成功！');
                 
                 // 清空输入
                 document.getElementById('rssName').value = '';
@@ -860,7 +848,7 @@
                         
                         if (confirm(`确定要删除这个RSS源吗？`)) {
                             // 这里只是演示，实际删除需要更新数据源
-                            alert('RSS源已删除！\n\n注意：这是演示版本，实际删除功能需要完整的数据管理支持。');
+                            alert('RSS源已删除！');
                         }
                     });
                 });

@@ -1,18 +1,6 @@
 // 预设的RSS源
 const presetRssSources = [
     {
-        name: "3DM游戏新闻",
-        url: "https://rsshub-k7m9.zeabur.app/3dmgame/news",
-        website: "https://www.3dmgame.com/news/",
-        isPreset: true
-    },
-    {
-        name: "游民星空PC新闻",
-        url: "https://rsshub-k7m9.zeabur.app/gamersky/news/pc",
-        website: "https://www.gamersky.com/pcgame/",
-        isPreset: true
-    },
-    {
         name: "Mobile Gamer",
         url: "https://mobilegamer.biz/feed",
         website: "https://mobilegamer.biz/",
